@@ -10,7 +10,7 @@ GxEPD2_BW<GxEPD2_290_GDEY029T94, MAX_HEIGHT(GxEPD2_290_GDEY029T94)> display(GxEP
 // last time the sensors were measured, in milliseconds
 unsigned long previousMillis = 0;
 // for sensor measuring and possible pump interval
-const long measuringInterval = 18000000; // 5 hour interval
+const long measuringInterval = 60000; // 60 seconds
 
 // E paper settings for Arduino Nano or Uno
 // BUSY -> D7
@@ -39,8 +39,6 @@ float soilHumidity1 = 0.0;
 float soilHumidity2 = 0.0;
 float soilHumidity3 = 0.0;
 float soilHumidity4 = 0.0;
-
-int measurementNumber = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -106,7 +104,7 @@ String pumpIfDry(float sensorValue, int sensorNumber, int pumpNumber){
   // 2.3V and higher --> super dry soil --> watering
   // 2.75 or higher --> probably sensor is not in soil but in the air, don't water
   String pumpNo = "Pump";
-  if (sensorValue >= 2.2 && sensorValue <= 2.7){
+  if (sensorValue >= 2.3 && sensorValue <= 2.7){
     water(pumpNumber);
 
     String waterMsg = " Watering finished.";
@@ -129,8 +127,6 @@ void loop() {
       || previousMillis == 0) { // if it's time to measure or first time of measuring
     previousMillis = currentMillis;
 
-    measurementNumber = measurementNumber + 1;
-
     // read sensor values, print them and water if necessary
     soilHumidity1 = calcSoilHumid(Pin1);
     String EpaperMsg1 = pumpIfDry(soilHumidity1, 1, In1);
@@ -144,11 +140,7 @@ void loop() {
     soilHumidity4 = calcSoilHumid(Pin4);
     String EpaperMsg4 = pumpIfDry(soilHumidity4, 4, In4);
 
-    String measurement = "Measurement: " + String(measurementNumber);
-
-    String msgComplete = 
-    "\n" + measurement
-    + "\n" + EpaperMsg1
+    String msgComplete = "\n" + EpaperMsg1
     + "\n" + EpaperMsg2
     + "\n" + EpaperMsg3
     + "\n" + EpaperMsg4;
