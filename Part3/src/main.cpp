@@ -91,7 +91,7 @@ void writeToEPaper(const char* msg){
 bool water(int pumpNumber)
 {
   digitalWrite(pumpNumber, LOW); // turn on pump
-  delay(30000); // 30 seconds of watering
+  delay(15000); // 15 seconds of watering (30s ~ 1Liter of water)
   digitalWrite(pumpNumber, HIGH); // turn off pump
 }
 
@@ -106,10 +106,10 @@ String pumpIfDry(float sensorValue, int sensorNumber, int pumpNumber){
   // 2.3V and higher --> super dry soil --> watering
   // 2.75 or higher --> probably sensor is not in soil but in the air, don't water
   String pumpNo = "Pump";
-  if (sensorValue >= 2.2 && sensorValue <= 2.7){
+  if (sensorValue >= 1.95 && sensorValue <= 2.6){
     water(pumpNumber);
 
-    String waterMsg = " Watering finished.";
+    String waterMsg = " Watering.";
     String returnMsg = pumpNo + (pumpNumber - 1) + ":" + sensorValue + waterMsg;
     return returnMsg;
   } else {
