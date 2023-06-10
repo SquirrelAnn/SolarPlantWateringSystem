@@ -1,5 +1,9 @@
 #include <Arduino.h>
 
+#include <avr/wdt.h>
+#include <avr/sleep.h>
+#include <avr/power.h>
+
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
 
@@ -42,6 +46,43 @@ float soilHumidity4 = 0.0;
 
 int measurementNumber = 0;
 
+// Watchdog Interrupt Service. This is executed when watchdog timed out.
+ISR(WDT_vect) {
+	
+}
+
+// Enters the arduino into sleep mode.
+void enterSleep(void)
+{
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);   // SLEEP_MODE_PWR_DOWN for lowest power consumption.
+  sleep_enable();
+  
+  sleep_mode();
+  
+  // The program will continue from here after the WDT timeout
+  sleep_disable(); // disable sleep
+  
+  /* Re-enable the peripherals. */
+  power_all_enable();
+}
+
+// Setup the Watch Dog Timer (WDT)
+void setupWatchDogTimer() {
+	 /* Clear the reset flag. */
+  MCUSR &= ~(1<<WDRF);
+  
+  /* In order to change WDE or the prescaler, we need to
+   * set WDCE (This will allow updates for 4 clock cycles).
+   */
+  WDTCSR |= (1<<WDCE) | (1<<WDE);
+
+  /* set new watchdog timeout prescaler value */
+  WDTCSR = 1<<WDP0 | 1<<WDP3; /* 8.0 seconds */
+  
+  /* Enable the WD interrupt (note no reset). */
+  WDTCSR |= _BV(WDIE);
+}
+
 void setup() {
   Serial.begin(9600);
 
@@ -63,6 +104,8 @@ void setup() {
   digitalWrite(In2, HIGH);
   digitalWrite(In3, HIGH);
   digitalWrite(In4, HIGH);
+
+  setupWatchDogTimer();
 
   delay(500);
 }
@@ -91,7 +134,7 @@ void writeToEPaper(const char* msg){
 bool water(int pumpNumber)
 {
   digitalWrite(pumpNumber, LOW); // turn on pump
-  delay(15000); // 15 seconds of watering (30s ~ 1Liter of water)
+  delay(20000); // 20 seconds of watering (30s ~ 1Liter of water)
   digitalWrite(pumpNumber, HIGH); // turn off pump
 }
 
@@ -109,7 +152,7 @@ String pumpIfDry(float sensorValue, int sensorNumber, int pumpNumber){
   if (sensorValue >= 1.95 && sensorValue <= 2.6){
     water(pumpNumber);
 
-    String waterMsg = " Watering.";
+    String waterMsg = " 20s Watering.";
     String returnMsg = pumpNo + (pumpNumber - 1) + ":" + sensorValue + waterMsg;
     return returnMsg;
   } else {
@@ -124,11 +167,12 @@ float calcSoilHumid(int sensorPin){
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= measuringInterval
+  unsigned long currentMillis = millis(); // doesnt work with WDT
+  Serial.println("Previous millis " + String(previousMillis));
+  if (previousMillis >= measuringInterval
       || previousMillis == 0) { // if it's time to measure or first time of measuring
-    previousMillis = currentMillis;
-
+    previousMillis = 0;
+    
     measurementNumber = measurementNumber + 1;
 
     // read sensor values, print them and water if necessary
@@ -155,5 +199,10 @@ void loop() {
 
     const char* msg = msgComplete.c_str();
     writeToEPaper(msg);
+    delay(1000); // wait 1 second so epaper can display message
   }
+  Serial.println("Enter sleep mode for 8 seconds.");
+  delay(100); // delay to get serial monitor output
+  previousMillis = previousMillis + 8100; // 8.1 seconds - 8 seconds from WDT + 100ms delay
+  enterSleep();  // deep sleep until WDT kicks
 }
