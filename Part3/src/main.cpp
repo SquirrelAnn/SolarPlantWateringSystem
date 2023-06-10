@@ -110,9 +110,8 @@ String pumpIfDry(float sensorValue, int sensorNumber, int pumpNumber){
   // 2.3V and higher --> super dry soil --> watering
   // 2.75 or higher --> probably sensor is not in soil but in the air, don't water
   String pumpNo = "Pump";
-  if (sensorValue >= 1.95 && sensorValue <= 2.6){
+  if (sensorValue >= 1.95 && sensorValue <= 2.6){ // adjusted range when to water according to testing phase
     water(pumpNumber);
-
     String waterMsg = " 20s Watering.";
     String returnMsg = pumpNo + (pumpNumber - 1) + ":" + sensorValue + waterMsg;
     return returnMsg;
@@ -131,7 +130,7 @@ void loop() {
   Serial.println("Previous millis " + String(previousMillis));
   if (previousMillis >= measuringInterval
       || previousMillis == 0) { // if it's time to measure or first time of measuring
-    previousMillis = 0;
+    previousMillis = 0; // reset the timer
     
     measurementNumber = measurementNumber + 1;
 
