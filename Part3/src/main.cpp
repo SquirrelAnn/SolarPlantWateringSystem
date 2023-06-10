@@ -92,7 +92,7 @@ void writeToEPaper(const char* msg){
   display.hibernate(); // turns powerOff() and sets controller to deep sleep for minimum power use, ONLY if wakeable by RST (rst >= 0)
 }
 
-bool water(int pumpNumber)
+void water(int pumpNumber)
 {
   digitalWrite(pumpNumber, LOW); // turn on pump
   delay(20000); // 20 seconds of watering (30s ~ 1Liter of water)
@@ -128,7 +128,6 @@ float calcSoilHumid(int sensorPin){
 }
 
 void loop() {
-  unsigned long currentMillis = millis(); // doesnt work with WDT
   Serial.println("Previous millis " + String(previousMillis));
   if (previousMillis >= measuringInterval
       || previousMillis == 0) { // if it's time to measure or first time of measuring
