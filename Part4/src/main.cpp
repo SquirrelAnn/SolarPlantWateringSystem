@@ -77,16 +77,13 @@ void loop() {
 
     // read sensor values, print them and water if necessary
     soilHumidity1 = calcSoilHumid(Pin1, SoilM1);
-    String EpaperMsg1 = pumpIfDry(soilHumidity1, 1, In1);
-
+    String EpaperMsg1 = epaperMsg(soilHumidity1, 1, In1);
     soilHumidity2 = calcSoilHumid(Pin2, SoilM2);
-    String EpaperMsg2 = pumpIfDry(soilHumidity2, 2, In2);
-
+    String EpaperMsg2 = epaperMsg(soilHumidity2, 2, In2);
     soilHumidity3 = calcSoilHumid(Pin3, SoilM3);
-    String EpaperMsg3 = pumpIfDry(soilHumidity3, 3, In3);
-
+    String EpaperMsg3 = epaperMsg(soilHumidity3, 3, In3);
     soilHumidity4 = calcSoilHumid(Pin4, SoilM4);
-    String EpaperMsg4 = pumpIfDry(soilHumidity4, 4, In4);
+    String EpaperMsg4 = epaperMsg(soilHumidity4, 4, In4);
 
     String measurement = "Measurement: " + String(measurementNumber);
 
@@ -100,6 +97,12 @@ void loop() {
     const char* msg = msgComplete.c_str();
     writeToEPaper(msg);
     delay(1000); // wait 1 second so epaper can display message
+
+    // now water, if necessary
+    bool water1 = water(soilHumidity1, 1, In1);
+    bool water2 = water(soilHumidity2, 2, In2);
+    bool water3 = water(soilHumidity3, 3, In3);
+    bool water4 = water(soilHumidity4, 4, In4);
   }
   Serial.println("Enter sleep mode for 8 seconds.");
   delay(100); // delay to get serial monitor output
