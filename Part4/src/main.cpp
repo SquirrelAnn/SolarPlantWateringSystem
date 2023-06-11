@@ -15,6 +15,12 @@ int Pin2 = A1;
 int Pin3 = A2;
 int Pin4 = A3;
 
+// gnd connection through digital pins (can be turned on/off)
+int SoilM1 = 6;
+int SoilM2 = 12;
+int SoilM3 = A4; // use this analog pin as digital pin
+int SoilM4 = A5; // use this analog pin as digital pin
+
 // water pumps to 4 channel relay
 int In1 = 2;
 int In2 = 3;
