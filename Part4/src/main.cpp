@@ -1,8 +1,8 @@
 #include <Arduino.h>
 
-#include <wdt.h>
-#include <epaper.h>
-#include <waterpumpctrl.h>
+#include "wdt.h"
+#include "epaper.h"
+#include "waterpumpctrl.h"
 
 // last time the sensors were measured, in milliseconds
 unsigned long previousMillis = 0;
@@ -35,10 +35,13 @@ float soilHumidity4 = 0.0;
 
 int measurementNumber = 0;
 
+EpaperDisplay::epaperDisplay epaper;
+WaterPumpCtrl::waterPumpCtrl waterPumpCtrl;
+SleepControl::wdtControl wdtControl;
+
 void setup() {
   Serial.begin(9600);
-
-  initDisplay();
+  epaper.initDisplay();
 
   analogReference(EXTERNAL); // set the analog reference to 3.3V
 
@@ -62,7 +65,7 @@ void setup() {
   pinMode(SoilM3, INPUT);
   pinMode(SoilM4, INPUT);
 
-  setupWatchDogTimer();
+  wdtControl.setupWatchDogTimer();
 
   delay(500);
 }
@@ -76,14 +79,14 @@ void loop() {
     measurementNumber = measurementNumber + 1;
 
     // read sensor values, print them and water if necessary
-    soilHumidity1 = calcSoilHumid(Pin1, SoilM1);
-    String EpaperMsg1 = epaperMsg(soilHumidity1, 1, In1);
-    soilHumidity2 = calcSoilHumid(Pin2, SoilM2);
-    String EpaperMsg2 = epaperMsg(soilHumidity2, 2, In2);
-    soilHumidity3 = calcSoilHumid(Pin3, SoilM3);
-    String EpaperMsg3 = epaperMsg(soilHumidity3, 3, In3);
-    soilHumidity4 = calcSoilHumid(Pin4, SoilM4);
-    String EpaperMsg4 = epaperMsg(soilHumidity4, 4, In4);
+    soilHumidity1 = waterPumpCtrl.calcSoilHumid(Pin1, SoilM1);
+    String EpaperMsg1 = waterPumpCtrl.epaperMsg(soilHumidity1, 1, In1);
+    soilHumidity2 = waterPumpCtrl.calcSoilHumid(Pin2, SoilM2);
+    String EpaperMsg2 = waterPumpCtrl.epaperMsg(soilHumidity2, 2, In2);
+    soilHumidity3 = waterPumpCtrl.calcSoilHumid(Pin3, SoilM3);
+    String EpaperMsg3 = waterPumpCtrl.epaperMsg(soilHumidity3, 3, In3);
+    soilHumidity4 = waterPumpCtrl.calcSoilHumid(Pin4, SoilM4);
+    String EpaperMsg4 = waterPumpCtrl.epaperMsg(soilHumidity4, 4, In4);
 
     String measurement = "Measurement: " + String(measurementNumber);
 
@@ -95,17 +98,17 @@ void loop() {
     + "\n" + EpaperMsg4;
 
     const char* msg = msgComplete.c_str();
-    writeToEPaper(msg);
+    epaper.writeToEPaper(msg);
     delay(1000); // wait 1 second so epaper can display message
 
     // now water, if necessary
-    bool water1 = water(soilHumidity1, 1, In1);
-    bool water2 = water(soilHumidity2, 2, In2);
-    bool water3 = water(soilHumidity3, 3, In3);
-    bool water4 = water(soilHumidity4, 4, In4);
+    bool water1 = waterPumpCtrl.water(soilHumidity1, 1, In1);
+    bool water2 = waterPumpCtrl.water(soilHumidity2, 2, In2);
+    bool water3 = waterPumpCtrl.water(soilHumidity3, 3, In3);
+    bool water4 = waterPumpCtrl.water(soilHumidity4, 4, In4);
   }
   Serial.println("Enter sleep mode for 8 seconds.");
   delay(100); // delay to get serial monitor output
   previousMillis = previousMillis + 8100; // 8.1 seconds - 8 seconds from WDT + 100ms delay
-  enterSleep();  // deep sleep until WDT kicks
+  wdtControl.enterSleep();  // deep sleep until WDT kicks
 }
