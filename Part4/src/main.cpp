@@ -18,7 +18,7 @@ int Pin4 = A3;
 // gnd connection through digital pins (can be turned on/off)
 int SoilM1 = 6;
 int SoilM2 = 12;
-int SoilM3 = A4; // use this analog pin as digital pin
+int SoilM3 = A4; // use this analog pin as digital pin (A0-A5 can be used as digital pins as well)
 int SoilM4 = A5; // use this analog pin as digital pin
 
 // water pumps to 4 channel relay
@@ -57,6 +57,11 @@ void setup() {
   digitalWrite(In3, HIGH);
   digitalWrite(In4, HIGH);
 
+  pinMode(SoilM1, INPUT); // set all as input to turn off gnd connection --> soil moisture sensor is not consuming power
+  pinMode(SoilM2, INPUT);
+  pinMode(SoilM3, INPUT);
+  pinMode(SoilM4, INPUT);
+
   setupWatchDogTimer();
 
   delay(500);
@@ -71,16 +76,16 @@ void loop() {
     measurementNumber = measurementNumber + 1;
 
     // read sensor values, print them and water if necessary
-    soilHumidity1 = calcSoilHumid(Pin1);
+    soilHumidity1 = calcSoilHumid(Pin1, SoilM1);
     String EpaperMsg1 = pumpIfDry(soilHumidity1, 1, In1);
 
-    soilHumidity2 = calcSoilHumid(Pin2);
+    soilHumidity2 = calcSoilHumid(Pin2, SoilM2);
     String EpaperMsg2 = pumpIfDry(soilHumidity2, 2, In2);
 
-    soilHumidity3 = calcSoilHumid(Pin3);
+    soilHumidity3 = calcSoilHumid(Pin3, SoilM3);
     String EpaperMsg3 = pumpIfDry(soilHumidity3, 3, In3);
 
-    soilHumidity4 = calcSoilHumid(Pin4);
+    soilHumidity4 = calcSoilHumid(Pin4, SoilM4);
     String EpaperMsg4 = pumpIfDry(soilHumidity4, 4, In4);
 
     String measurement = "Measurement: " + String(measurementNumber);

@@ -30,6 +30,15 @@ String pumpIfDry(float sensorValue, int sensorNumber, int pumpNumber){
   }
 }
 
-float calcSoilHumid(int sensorPin){
-  return (float(analogRead(sensorPin))/1023.0)*3.3;
+float calcSoilHumid(int sensorPin, int gndPin){
+  // first turn on the sensor
+  pinMode(gndPin, OUTPUT);
+  digitalWrite(gndPin, LOW);
+  // now wait for 20seconds for the sensor to settle
+  delay(20000);
+  // now read the sensor value
+  float measuredValue = (float(analogRead(sensorPin))/1023.0)*3.3;
+  // turn off the sensor
+  pinMode(gndPin, INPUT);
+  return measuredValue;
 }
