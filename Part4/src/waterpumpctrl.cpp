@@ -41,8 +41,8 @@ float waterPumpCtrl::calcSoilHumid(int sensorPin, int gndPin)
   // first turn on the sensor
   pinMode(gndPin, OUTPUT);
   digitalWrite(gndPin, LOW);
-  // now wait for 20seconds for the sensor to settle
-  delay(20000);
+  // now wait for 3 seconds for the sensor to settle
+  delay(3000);
   // now read the sensor value
   // for calculation see also https://docs.arduino.cc/built-in-examples/basics/ReadAnalogVoltage
   float measuredValue = (float(analogRead(sensorPin))/1023.0)*3.3; 
