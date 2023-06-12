@@ -5,7 +5,7 @@
 #include "waterpumpctrl.h"
 
 // last time the sensors were measured, in milliseconds
-unsigned long previousMillis = 0;
+unsigned long elapsedTime = 0;
 // for sensor measuring and possible pump interval
 const long measuringInterval = 18000000; // 5 hour interval
 
@@ -16,10 +16,10 @@ int Pin3 = A2;
 int Pin4 = A3;
 
 // gnd connection through digital pins (can be turned on/off)
-int SoilM1 = 6;
-int SoilM2 = 12;
-int SoilM3 = A4; // use this analog pin as digital pin (A0-A5 can be used as digital pins as well)
-int SoilM4 = A5; // use this analog pin as digital pin
+int SoilM1 = 6; // gnd sensor 1
+int SoilM2 = 12; // gnd sensor 2
+int SoilM3 = A4; // gnd sensor 3 use this analog pin as digital pin (A0-A5 can be used as digital pins as well)
+int SoilM4 = A5; // gnd sensor 4 use this analog pin as digital pin
 
 // water pumps to 4 channel relay
 int In1 = 2;
@@ -71,10 +71,15 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Previous millis " + String(previousMillis));
-  if (previousMillis >= measuringInterval
-      || previousMillis == 0) { // if it's time to measure or first time of measuring
-    previousMillis = 0; // reset the timer
+  Serial.println("Previous millis " + String(elapsedTime));
+  if (elapsedTime >= measuringInterval
+      || elapsedTime == 0) { // if it's time to measure or first time of measuring
+    elapsedTime = 0; // reset the timer
+
+    String msgInit = "Start measuring.";
+    const char* msgIn = msgInit.c_str();
+    epaper.writeToEPaper(msgIn);
+    delay(1000);
     
     measurementNumber = measurementNumber + 1;
 
@@ -109,6 +114,6 @@ void loop() {
   }
   Serial.println("Enter sleep mode for 8 seconds.");
   delay(100); // delay to get serial monitor output
-  previousMillis = previousMillis + 8100; // 8.1 seconds - 8 seconds from WDT + 100ms delay
+  elapsedTime = elapsedTime + 8100; // 8.1 seconds - 8 seconds from WDT + 100ms delay
   wdtControl.enterSleep();  // deep sleep until WDT kicks
 }
