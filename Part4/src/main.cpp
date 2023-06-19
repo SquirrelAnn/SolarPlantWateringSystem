@@ -10,22 +10,22 @@ unsigned long elapsedTime = 0;
 const long measuringInterval = 18000000; // 5 hour interval
 
 // soil moisture sensors --> signals
-int Pin1 = A0;
-int Pin2 = A1;
-int Pin3 = A2;
-int Pin4 = A3;
+int SensorSignal1 = A4;
+int SensorSignal2 = A5;
+int SensorSignal3 = A6;
+int SensorSignal4 = A7;
 
 // gnd connection through digital pins (can be turned on/off)
 int SoilM1 = 6; // gnd sensor 1
-int SoilM2 = 12; // gnd sensor 2
-int SoilM3 = A4; // gnd sensor 3 use this analog pin as digital pin (A0-A5 can be used as digital pins as well)
-int SoilM4 = A5; // gnd sensor 4 use this analog pin as digital pin
+int SoilM2 = A0; // gnd sensor 2
+int SoilM3 = A1; // gnd sensor 3 use this analog pin as digital pin (A0-A5 can be used as digital pins as well)
+int SoilM4 = A2; // gnd sensor 4 use this analog pin as digital pin
 
 // water pumps to 4 channel relay
-int In1 = 2;
-int In2 = 3;
-int In3 = 4;
-int In4 = 5;
+int Pump1 = 2;
+int Pump2 = 3;
+int Pump3 = 4;
+int Pump4 = 5;
 
 // measured values of soil humidity
 float soilHumidity1 = 0.0;
@@ -45,20 +45,20 @@ void setup() {
 
   analogReference(EXTERNAL); // set the analog reference to 3.3V
 
-  pinMode(Pin1, INPUT);
-  pinMode(Pin2, INPUT);
-  pinMode(Pin3, INPUT);
-  pinMode(Pin4, INPUT);
+  pinMode(SensorSignal1, INPUT);
+  pinMode(SensorSignal2, INPUT);
+  pinMode(SensorSignal3, INPUT);
+  pinMode(SensorSignal4, INPUT);
 
-  pinMode(In1, OUTPUT);
-  pinMode(In2, OUTPUT);
-  pinMode(In3, OUTPUT);
-  pinMode(In4, OUTPUT);
+  pinMode(Pump1, OUTPUT);
+  pinMode(Pump2, OUTPUT);
+  pinMode(Pump3, OUTPUT);
+  pinMode(Pump4, OUTPUT);
 
-  digitalWrite(In1, HIGH);
-  digitalWrite(In2, HIGH);
-  digitalWrite(In3, HIGH);
-  digitalWrite(In4, HIGH);
+  digitalWrite(Pump1, HIGH);
+  digitalWrite(Pump2, HIGH);
+  digitalWrite(Pump3, HIGH);
+  digitalWrite(Pump4, HIGH);
 
   pinMode(SoilM1, INPUT); // set all as input to turn off gnd connection --> soil moisture sensor is not consuming power
   pinMode(SoilM2, INPUT);
@@ -76,22 +76,17 @@ void loop() {
       || elapsedTime == 0) { // if it's time to measure or first time of measuring
     elapsedTime = 0; // reset the timer
 
-    String msgInit = "Start measuring.";
-    const char* msgIn = msgInit.c_str();
-    epaper.writeToEPaper(msgIn);
-    delay(1000);
-    
     measurementNumber = measurementNumber + 1;
 
     // read sensor values, print them and water if necessary
-    soilHumidity1 = waterPumpCtrl.calcSoilHumid(Pin1, SoilM1);
-    String EpaperMsg1 = waterPumpCtrl.epaperMsg(soilHumidity1, 1, In1);
-    soilHumidity2 = waterPumpCtrl.calcSoilHumid(Pin2, SoilM2);
-    String EpaperMsg2 = waterPumpCtrl.epaperMsg(soilHumidity2, 2, In2);
-    soilHumidity3 = waterPumpCtrl.calcSoilHumid(Pin3, SoilM3);
-    String EpaperMsg3 = waterPumpCtrl.epaperMsg(soilHumidity3, 3, In3);
-    soilHumidity4 = waterPumpCtrl.calcSoilHumid(Pin4, SoilM4);
-    String EpaperMsg4 = waterPumpCtrl.epaperMsg(soilHumidity4, 4, In4);
+    soilHumidity1 = waterPumpCtrl.calcSoilHumid(SensorSignal1, SoilM1);
+    String EpaperMsg1 = waterPumpCtrl.epaperMsg(soilHumidity1, 1, Pump1);
+    soilHumidity2 = waterPumpCtrl.calcSoilHumid(SensorSignal2, SoilM2);
+    String EpaperMsg2 = waterPumpCtrl.epaperMsg(soilHumidity2, 2, Pump2);
+    soilHumidity3 = waterPumpCtrl.calcSoilHumid(SensorSignal3, SoilM3);
+    String EpaperMsg3 = waterPumpCtrl.epaperMsg(soilHumidity3, 3, Pump3);
+    soilHumidity4 = waterPumpCtrl.calcSoilHumid(SensorSignal4, SoilM4);
+    String EpaperMsg4 = waterPumpCtrl.epaperMsg(soilHumidity4, 4, Pump4);
 
     String measurement = "Measurement: " + String(measurementNumber);
 
@@ -107,10 +102,10 @@ void loop() {
     delay(1000); // wait 1 second so epaper can display message
 
     // now water, if necessary
-    bool water1 = waterPumpCtrl.water(soilHumidity1, 1, In1);
-    bool water2 = waterPumpCtrl.water(soilHumidity2, 2, In2);
-    bool water3 = waterPumpCtrl.water(soilHumidity3, 3, In3);
-    bool water4 = waterPumpCtrl.water(soilHumidity4, 4, In4);
+    bool water1 = waterPumpCtrl.water(soilHumidity1, 1, Pump1);
+    bool water2 = waterPumpCtrl.water(soilHumidity2, 2, Pump2);
+    bool water3 = waterPumpCtrl.water(soilHumidity3, 3, Pump3);
+    bool water4 = waterPumpCtrl.water(soilHumidity4, 4, Pump4);
   }
   Serial.println("Enter sleep mode for 8 seconds.");
   delay(100); // delay to get serial monitor output
