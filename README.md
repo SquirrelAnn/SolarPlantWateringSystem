@@ -1,7 +1,38 @@
 # Solar Plant Watering System built with Arduino
 
+Battery life calculator:
 
-Components list
+https://www.digikey.de/en/resources/conversion-calculators/conversion-calculator-battery-life
+
+Arduino documentation:
+
+https://www.arduino.cc/reference/en/language/functions/digital-io/digitalwrite/
+
+https://docs.arduino.cc/learn/microcontrollers/digital-pins
+
+Solar Power Manager Waveshare (wiki, datasheet)
+
+https://www.waveshare.com/product/modules/solar-power-manager.htm
+
+IDE, VS Code:
+
+https://code.visualstudio.com/ 
+
+VS Code Extension, Platform IO:
+
+https://platformio.org/install/ide?install=vscode
+
+GxEPD2 library Github
+
+https://github.com/ZinggJM/GxEPD2
+
+
+Used for circuit drawings:
+
+https://fritzing.org/
+
+
+## Components list
 
 | Amount | Description | Link |
 | ----------- | ----------- | ----------- |
